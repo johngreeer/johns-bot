@@ -9,6 +9,7 @@
     "dev": " export $(cat .env | xargs) && nodemon hubot -a slack"
   },
   "dependencies": {
+    "axios": "^0.24.0",
     "hubot": "^3.3.2",
     "hubot-diagnostics": "^1.0.0",
     "hubot-env": "^0.0.2",
