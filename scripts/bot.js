@@ -219,5 +219,6 @@ API
 */
 
 //wishlist
-// database for what EACH person is reading? can we get the specific user and save those to different vars?
+// database for what EACH person is reading? can we get the specific user and save those to different vars? 
 // if/then check to prevent displaying undefineds on 'what am i reading' command
+// consider the ramifications of an always deployed bot. UX of finishing a book? saving more than one book?
