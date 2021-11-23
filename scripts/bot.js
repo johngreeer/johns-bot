@@ -217,3 +217,7 @@ API
     - books API: https://openlibrary.org/dev/docs/api/books
        - testing ISBNs: 9780241980354 (east of eden) , 9780593133583 (brene brown)
 */
+
+//wishlist
+// database for what EACH person is reading? can we get the specific user and save those to different vars?
+// if/then check to prevent displaying undefineds on 'what am i reading' command
