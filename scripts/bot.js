@@ -15,11 +15,13 @@ module.exports = function (bot) {
         return res.send(`
         👋 Hi! I'm Book Buddy, your Slack companion for reading. Here's how I can be the most useful:
 
-1. say \`@book-buddy isbn {isbn-number}\` and use your book's ISBN number, and I'll look up that book for you and save it as what you're reading right now! You can usually find the ISBN on the inside cover or back of your book 🤓
+1. say \`@book-buddy isbn {isbn-number}\` and use your book's ISBN number, and I'll look up that book's information for you. You can usually find the ISBN on the inside cover or back of your book 🤓
 
-2. then, say \`@book-buddy bookmark {your-page}\` and I'll save what page you're on. 🔖
+2. say \`@book-buddy save {isbn-number}\` and I'll save it as what you're reading right now! 
 
-3. after that, you can always say \`@book-buddy what am i reading?\` and i'll remind you what book you're on, your bookmark, and more! ✨`)
+3. say \`@book-buddy bookmark {your-page}\` and I'll save what page you're on. 🔖
+
+4. Finally, you can always say \`@book-buddy what am i reading?\` and i'll remind you what book you're on, your bookmark, and more! ✨`)
     })
     
     // confirms bot is in the room
@@ -41,7 +43,7 @@ module.exports = function (bot) {
 
     // audiobooks
     bot.respond(/my eyes hurt/i, function (res) {
-        return res.send(`Ack. Maybe try an audiobook? https://www.audible.com/`)
+        return res.send(`Ack. Maybe try an audiobook? 🎧 https://www.audible.com/`)
     })
 
     // libraries
@@ -50,6 +52,7 @@ module.exports = function (bot) {
     })
 
     // check what the current book is
+    // wishlist: add a check to see if anything is undefined/NaN before displaying
     bot.respond(/What am I reading?/i, function (res){
         percentComplete = Math.ceil((currentPage / totalPages) * 100) // needs to be here and not outside the module.exports for some reason
         pagesLeft = totalPages - currentPage // pagesLeft will always be this but keep it here and not in the list of vars at the bottom
@@ -57,7 +60,8 @@ module.exports = function (bot) {
     You're currently reading *${currentBook}* by ${currentBookAuthor}.
     🔖 You're currently on page ${currentPage}. 
     ⏳ You have ${pagesLeft} pages to go.
-    📈 You are ${percentComplete}% complete!`
+    📈 You are ${percentComplete}% complete!
+    (if you're seeing NaNs here, try bookmarking a page with \`@book-buddy bookmark [your page number]\``
         )
     })
 
@@ -82,7 +86,7 @@ module.exports = function (bot) {
     // tells user how many pages they have left to go
     bot.respond(/pages left?/i, function (res) {
         pagesLeft = totalPages - currentPage
-        return res.send(`You've got ${pagesLeft} to go!`)
+        return res.send(`You've got ${pagesLeft} pages to go!`)
     })
 
     // uses API to GET the definition for a word (which the user provides)
@@ -99,11 +103,10 @@ module.exports = function (bot) {
             return definition.data.results[0]
         }
         const definition = await getDefinition()
-        // console.log(definition.lexicalEntries[0].entries[0].senses[0].definitions[0])
         return res.send(`Oxford Dictionary defines "${definedWord}" as: \`\`\`${definition.lexicalEntries[0].entries[0].senses[0].definitions[0]}\`\`\``)
     })
 
-    // uses API to GET information about a book, and saves Book Title and Total Pages to variables.
+    // uses API to GET information about a book, DOES NOT save to variables
     bot.respond(/isbn (.*)/i, async function (res) {
         bookIsbn = res.match[1]
         const getBookInfo = async function () {
@@ -116,7 +119,32 @@ module.exports = function (bot) {
             return isbn
         }
         const isbn = await getBookInfo()
-        // used for digging into api responses, console.log(isbn.data[`ISBN:${bookIsbn}`])
+        
+
+        return res.send(`
+        Got it! Here's some information about that book:
+📔 Title: ${isbn.data[`ISBN:${bookIsbn}`].title}
+✍️ Author: ${isbn.data[`ISBN:${bookIsbn}`].authors[0].name}
+📜 Number of pages: ${isbn.data[`ISBN:${bookIsbn}`].number_of_pages}
+👩‍💻 Read more about this book at ${isbn.data[`ISBN:${bookIsbn}`].url}
+
+Are you currently reading this book? Say \`@book-buddy save [your-isbn-number]\` to save it!
+`)
+    })
+
+        // uses API to GET information about a book, DOES NOT save to variables
+    bot.respond(/save (.*)/i, async function (res) {
+        bookIsbn = res.match[1]
+        const getBookInfo = async function () {
+            const isbn = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:` + bookIsbn , {
+                params: {
+                    format: 'json',
+                    jscmd: 'data'
+                }
+            })
+            return isbn
+        }
+        const isbn = await getBookInfo()
         
         // setting variables to API results
         currentBook = `${isbn.data[`ISBN:${bookIsbn}`].title}`
@@ -125,7 +153,7 @@ module.exports = function (bot) {
         // end setting variables
 
         return res.send(`
-        Got it! Here's some information about that book:
+        ✅ I've saved this as your current book! Just to confirm, that's...
 📔 Title: ${isbn.data[`ISBN:${bookIsbn}`].title}
 ✍️ Author: ${isbn.data[`ISBN:${bookIsbn}`].authors[0].name}
 📜 Number of pages: ${isbn.data[`ISBN:${bookIsbn}`].number_of_pages}
@@ -133,9 +161,28 @@ module.exports = function (bot) {
         `)
     })
 
+
     // clears some vertical space up in the slack channel
     bot.respond(/I need some air/i, function (res) {
-        return res.send(`Roger that
+        return res.send(`Take five, chief
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
         .
         .
         .
